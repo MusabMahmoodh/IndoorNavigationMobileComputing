@@ -2,11 +2,13 @@ import React, {useMemo, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {Button, Text} from 'react-native-paper';
 import DropDown from 'react-native-paper-dropdown';
+
 import {areEmpty} from '../utils/javascriptUtils';
 import {createNavigableOptions} from '../utils/ngraphUtils';
 import {graphJsonString} from '../utils/constants';
+import {screenNames} from '../../constants';
 
-export function LocationSelectScreen({navigation}) {
+export default function LocationSelectScreen({navigation}) {
   const [showDropDownStart, setShowDropDownStart] = useState(false);
   const [showDropDownEnd, setShowDropDownEnd] = useState(false);
 
@@ -19,7 +21,7 @@ export function LocationSelectScreen({navigation}) {
   }, []);
 
   function startNavigation() {
-    navigation.navigate('Location', {
+    navigation.navigate(screenNames.LOCATION_SCREEN, {
       startId: dropDownStartValue,
       endId: dropDownEndValue,
     });
@@ -27,7 +29,7 @@ export function LocationSelectScreen({navigation}) {
 
   return (
     <View style={s.viewWrapper}>
-      <Text style={s.title}>Kies een startpunt</Text>
+      <Text style={s.title}>Choose a starting point</Text>
       <DropDown
         label={'Start'}
         mode={'outlined'}
@@ -40,9 +42,9 @@ export function LocationSelectScreen({navigation}) {
       />
       <View style={s.spacerMd} />
 
-      <Text style={s.title}>Kies een eindpunt</Text>
+      <Text style={s.title}>Choose an end point</Text>
       <DropDown
-        label={'Einde'}
+        label={'End'}
         mode={'outlined'}
         visible={showDropDownEnd}
         showDropDown={() => setShowDropDownEnd(true)}

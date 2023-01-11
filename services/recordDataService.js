@@ -1,16 +1,21 @@
-import WifiReborn from "react-native-wifi-reborn";
+import WifiReborn from 'react-native-wifi-reborn';
 // import * as Permissions from "expo-permissions";
-import { PermissionsAndroid } from "react-native";
-import determineLocation from "./locationService";
+import {PermissionsAndroid} from 'react-native';
+import determineLocation from './locationService';
 
 async function recordData() {
   try {
-    const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION, {
-      title: "Location permission is required for WiFi connections",
-      message: "This app needs location permission as this is required  " + "to scan for wifi networks.",
-      buttonNegative: "DENY",
-      buttonPositive: "ALLOW",
-    });
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      {
+        title: 'Location permission is required for WiFi connections',
+        message:
+          'This app needs location permission as this is required  ' +
+          'to scan for wifi networks.',
+        buttonNegative: 'DENY',
+        buttonPositive: 'ALLOW',
+      },
+    );
     // const grantedLoc = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.LO, {
     //   title: "Location permission is required for WiFi connections",
     //   message: "This app needs location permission as this is required  " + "to scan for wifi networks.",
@@ -21,13 +26,13 @@ async function recordData() {
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
       // Get the current WiFi signal strength
       const wifiList = await WifiReborn?.loadWifiList();
-      const signalStrengths = wifiList?.map((wifi) => wifi.level);
+      const signalStrengths = wifiList?.map(wifi => wifi.level);
       console.log(signalStrengths);
 
       // Get the current location
       const location = await determineLocation();
-      console.log(`Latitude: ${location.latitude}`);
-      console.log(`Longitude: ${location.longitude}`);
+      console.log(`Latitude: ${location}`);
+      console.log(`Longitude: ${location}`);
 
       // Save data to database
       await saveDataToDatabase(strength, location);
@@ -52,7 +57,7 @@ async function saveDataToDatabase(strength, location) {
     //   'INSERT INTO wifi_data (strength, location) VALUES (?, ?)',
     //   [strength, location]
     // );
-    cnsole.log("Data saved to database", strength, location);
+    cnsole.log('Data saved to database', strength, location);
   } catch (error) {
     console.error(error);
   }

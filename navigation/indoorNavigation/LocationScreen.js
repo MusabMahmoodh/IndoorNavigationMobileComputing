@@ -14,6 +14,7 @@ import {Dimensions, StyleSheet, Text, View} from 'react-native';
 import {Button, useTheme} from 'react-native-paper';
 import {Circle, Image, Path} from 'react-native-svg';
 import SvgPanZoom from 'react-native-svg-pan-zoom';
+
 import floorplan from '../../assets/Floorplan.png';
 import {
   useCompassHeading,
@@ -46,7 +47,7 @@ const stepScale = 2;
  * */
 const imageNorthOffset = Math.PI + Math.PI / 16;
 
-export function LocationScreen({route, navigation}) {
+export default function LocationScreen({route, navigation}) {
   const theme = useTheme();
 
   const [accelerometerData, setAccelerometerData] = useState({
@@ -228,10 +229,11 @@ export function LocationScreen({route, navigation}) {
         <View style={[s.bottomTab, s.topShadow]}>
           {renderCheckpoints()}
           <Button
+            style={s.bottomBtn}
             disabled={hasReachedFinalCheckpoint()}
             onPress={goToNextCheckpoint}
             mode={'outlined'}>
-            Volgende punt
+            Next point
           </Button>
         </View>
       );
@@ -248,6 +250,9 @@ export function LocationScreen({route, navigation}) {
             width: '100%',
             marginLeft: 10,
             marginTop: 10,
+            backgroundColor: 'tomato',
+            padding: 10,
+            borderRadius: 10,
           }}>
           <Text>
             Location| x:{location.x.toFixed(3)}, y:{location.y.toFixed(3)}
@@ -307,6 +312,9 @@ export function LocationScreen({route, navigation}) {
 }
 
 const s = StyleSheet.create({
+  bottomBtn: {
+    marginTop: 10,
+  },
   topShadow: {
     shadowColor: '#000',
     shadowOffset: {
@@ -327,5 +335,6 @@ const s = StyleSheet.create({
   checkPointText: {
     fontWeight: 'bold',
     fontSize: 20,
+    color: 'tomato',
   },
 });

@@ -1,16 +1,17 @@
 import React from 'react';
-import { Dimensions, StyleSheet, View, ScrollView, Text } from 'react-native';
-import { List, Surface, useTheme } from 'react-native-paper';
+import {Dimensions, StyleSheet, View} from 'react-native';
+import {ScrollView} from 'react-native-gesture-handler';
+import {List, Surface, useTheme} from 'react-native-paper';
 
-export function FeedScreen({ navigation }) {
+export default function NavigationHomeScreen({route, navigation}) {
   const theme = useTheme();
   const ListItem = {
     Location: {
-      title: 'Locatie estimatie',
+      title: 'Location estimation',
       icon: 'map-marker-radius-outline',
     },
     LocationSelect: {
-      title: 'Vind een pad',
+      title: 'Find a path',
       icon: 'walk',
     },
   };
@@ -18,13 +19,18 @@ export function FeedScreen({ navigation }) {
     <View style={styles.container}>
       <ScrollView>
         <List.Section style={styles.list}>
-          <List.Subheader>Kies een modus</List.Subheader>
+          <List.Subheader>Choose a mode</List.Subheader>
           {Object.entries(ListItem).map(([rootName, params], idx) => (
-            <Surface key={idx} style={{ marginBottom: 8, elevation: 2 }}>
+            <Surface key={idx} style={{marginBottom: 8, elevation: 2}}>
               <List.Item
                 title={params.title}
                 left={() => <List.Icon icon={params.icon} />}
-                right={() => <List.Icon icon="chevron-right" color={theme.colors.primary} />}
+                right={() => (
+                  <List.Icon
+                    icon="chevron-right"
+                    color={theme.colors.primary}
+                  />
+                )}
                 onPress={() => {
                   navigation.navigate(rootName);
                 }}

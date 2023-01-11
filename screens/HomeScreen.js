@@ -1,8 +1,10 @@
 import React from 'react';
 import {Button, StyleSheet, View} from 'react-native';
+
+import {screenNames} from '../constants';
 import recordData from '../services/recordDataService';
 
-function HomeScreen({navigation}) {
+export default function HomeScreen({route, navigation}) {
   return (
     <View style={styles.container}>
       <Button style={styles.button} title="Record Data" onPress={recordData} />
@@ -10,13 +12,11 @@ function HomeScreen({navigation}) {
       <Button
         style={styles.button}
         title="Start Navigation"
-        onPress={() => navigation.navigate('LocationScreen')}
+        onPress={() => navigation.navigate(screenNames.NAVIGATION_HOME_SCREEN)}
       />
     </View>
   );
 }
-
-export default HomeScreen;
 
 const styles = StyleSheet.create({
   container: {
