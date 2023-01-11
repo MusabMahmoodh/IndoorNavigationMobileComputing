@@ -26,8 +26,10 @@ async function recordData() {
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
       // Get the current WiFi signal strength
       const wifiList = await WifiReborn?.loadWifiList();
-      const signalStrengths = wifiList?.map(wifi => wifi.level);
-      console.log(signalStrengths);
+      const signalStrengths = wifiList?.map(wifi => {
+        console.log('Strength:', wifi.SSID, ' -> ', wifi.level);
+        return wifi.level;
+      });
 
       // Get the current location
       const location = await determineLocation();
@@ -35,7 +37,7 @@ async function recordData() {
       console.log(`Longitude: ${location}`);
 
       // Save data to database
-      await saveDataToDatabase(strength, location);
+      // await saveDataToDatabase(strength, location);
     } else {
       // Permission denied
     }
