@@ -1,13 +1,15 @@
 import {View, Text} from 'react-native';
 import React from 'react';
 
-import {Button, DataTable} from 'react-native-paper';
-import {ScrollView} from 'react-native-gesture-handler';
+import {ActivityIndicator, Button, DataTable} from 'react-native-paper';
+
 import DataCollector from './components/DataCollector';
+import {saveDataToDatabase} from './recordDataService';
 
 export default function DataCollectionScreen({route, navigation}) {
   const [dataCollected, setDataCollected] = React.useState([]);
   const [isStarted, setIsStarted] = React.useState(false);
+  const [isSaving, setIsSaving] = React.useState(false);
   const startRecordings = () => {
     setIsStarted(pre => true);
   };
@@ -15,6 +17,15 @@ export default function DataCollectionScreen({route, navigation}) {
   const stopRecording = () => {
     console.log('Stopping recording');
     setIsStarted(pre => false);
+  };
+  const saveRecordings = async () => {
+    console.log('Saving recording');
+    setIsSaving(pre => true);
+    await saveDataToDatabase(dataCollected);
+    setIsSaving(pre => false);
+    setDataCollected(pre => []);
+
+    console.log('Recordings saved');
   };
 
   return (
@@ -54,7 +65,7 @@ export default function DataCollectionScreen({route, navigation}) {
                     borderColor: 'tomato',
                     marginLeft: 10,
                   }}
-                  onPress={startRecordings}>
+                  onPress={saveRecordings}>
                   Save
                 </Button>
               )}
@@ -68,7 +79,18 @@ export default function DataCollectionScreen({route, navigation}) {
             </Button>
           )}
         </View>
-        {isStarted ? <Text>Reading...</Text> : <Text>Waiting to start...</Text>}
+        {isStarted ? (
+          <Text>Reading...</Text>
+        ) : isSaving ? (
+          <Text>Saving...</Text>
+        ) : (
+          <Text>Waiting to start...</Text>
+        )}
+        {isSaving && (
+          <View>
+            <ActivityIndicator size="small" color="green" />
+          </View>
+        )}
         {isStarted ? (
           <DataCollector setDataCollected={setDataCollected} />
         ) : null}
@@ -77,16 +99,16 @@ export default function DataCollectionScreen({route, navigation}) {
             <DataTable.Title>Point</DataTable.Title>
             <DataTable.Title numeric>Lat</DataTable.Title>
             <DataTable.Title numeric>Long</DataTable.Title>
-            <DataTable.Title numeric>WiFi strngth</DataTable.Title>
+            <DataTable.Title numeric>WiFi strength</DataTable.Title>
           </DataTable.Header>
           {dataCollected?.reverse().map((reading, idx) => (
             <DataTable.Row key={idx}>
               <DataTable.Cell>{idx}</DataTable.Cell>
-              <DataTable.Cell numeric>{reading?.loc?.latitude}</DataTable.Cell>
-              <DataTable.Cell numeric>{reading?.loc?.longitude}</DataTable.Cell>
               <DataTable.Cell numeric>
                 {JSON.stringify(reading?.signalStrengths)}
               </DataTable.Cell>
+              <DataTable.Cell numeric>{reading?.loc?.latitude}</DataTable.Cell>
+              <DataTable.Cell numeric>{reading?.loc?.longitude}</DataTable.Cell>
             </DataTable.Row>
           ))}
         </DataTable>

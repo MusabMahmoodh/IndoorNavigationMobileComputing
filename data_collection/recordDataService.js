@@ -28,8 +28,6 @@ async function recordData() {
 
       //TODO:Get IMU data
 
-      // Save data to database
-      await saveDataToDatabase(signalStrengths, loc);
       return {signalStrengths, loc};
     } else {
       // Permission denied
@@ -42,7 +40,7 @@ async function recordData() {
 export default recordData;
 
 // Function to save data to database
-async function saveDataToDatabase(strength, location) {
+export async function saveDataToDatabase(data) {
   try {
     // Connect to database
     // const db = await connectToDatabase();
@@ -52,7 +50,7 @@ async function saveDataToDatabase(strength, location) {
     //   'INSERT INTO wifi_data (strength, location) VALUES (?, ?)',
     //   [strength, location]
     // );
-    console.log('Data saved to database', strength, location);
+    console.log('Data saved to database', data);
   } catch (error) {
     console.error(error);
   }
