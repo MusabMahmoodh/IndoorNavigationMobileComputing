@@ -1,39 +1,22 @@
 import {View, Text} from 'react-native';
-import React, {useEffect, useRef} from 'react';
-import recordData from './recordDataService';
+import React from 'react';
+
 import {Button, DataTable} from 'react-native-paper';
 import {ScrollView} from 'react-native-gesture-handler';
-import {reverse} from '@tensorflow/tfjs';
+import DataCollector from './components/DataCollector';
 
 export default function DataCollectionScreen({route, navigation}) {
-  const recorderRef = useRef(null);
-
   const [dataCollected, setDataCollected] = React.useState([]);
   const [isStarted, setIsStarted] = React.useState(false);
-  const saveRecordings = () => {
-    console.log('Started recording readings');
+  const startRecordings = () => {
     setIsStarted(pre => true);
   };
 
   const stopRecording = () => {
-    console.log('Stopped recording readings');
+    console.log('Stopping recording');
     setIsStarted(pre => false);
   };
-  useEffect(() => {
-    //effect
-    console.log('Started recording readings');
-    recorderRef.current = setInterval(async () => {
-      const recordedData = await recordData();
-      console.log('Recorded data', recordedData);
-      let readings = [...dataCollected, recordedData];
-      setDataCollected(pre => [...pre, recordedData]);
 
-      console.log('Data', readings);
-    }, 20000);
-    return () => {
-      clearInterval(recorderRef.current);
-    };
-  }, []);
   return (
     <View>
       <View>
@@ -59,9 +42,23 @@ export default function DataCollectionScreen({route, navigation}) {
             width: '100%',
           }}>
           {!isStarted ? (
-            <Button icon="camera" mode="contained" onPress={saveRecordings}>
-              Save
-            </Button>
+            <>
+              <Button icon="camera" mode="contained" onPress={startRecordings}>
+                Start
+              </Button>
+              {dataCollected.length > 0 && (
+                <Button
+                  icon="content-save"
+                  mode="outlined"
+                  style={{
+                    borderColor: 'tomato',
+                    marginLeft: 10,
+                  }}
+                  onPress={startRecordings}>
+                  Save
+                </Button>
+              )}
+            </>
           ) : (
             <Button
               icon="chevron-right"
@@ -71,7 +68,10 @@ export default function DataCollectionScreen({route, navigation}) {
             </Button>
           )}
         </View>
-        {isStarted ? <Text>Reading...</Text> : <Text>.</Text>}
+        {isStarted ? <Text>Reading...</Text> : <Text>Waiting to start...</Text>}
+        {isStarted ? (
+          <DataCollector setDataCollected={setDataCollected} />
+        ) : null}
         <DataTable>
           <DataTable.Header>
             <DataTable.Title>Point</DataTable.Title>
