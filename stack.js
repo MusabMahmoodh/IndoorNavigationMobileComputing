@@ -4,6 +4,7 @@ import React from 'react';
 import {Appbar, useTheme} from 'react-native-paper';
 
 import {screenNames} from './constants';
+import DataCollectionScreen from './data_collection/DataCollectionScreen';
 import LocationScreen from './navigation/indoorNavigation/LocationScreen';
 import LocationSelectScreen from './navigation/indoorNavigation/LocationSelectScreen';
 import NavigationHomeScreen from './navigation/indoorNavigation/NavigationHomeScreen';
@@ -59,6 +60,11 @@ export function StackNavigator() {
           name={screenNames.LOCATION_SELECT_SCREEN}
           component={LocationSelectScreen}
           options={{headerTitle: 'Location select'}}
+        />
+        <Stack.Screen
+          name={screenNames.DATA_COLLECTION_SCREEN}
+          component={DataCollectionScreen}
+          options={{headerTitle: 'Data Collection'}}
         />
       </Stack.Navigator>
     </NavigationContainer>

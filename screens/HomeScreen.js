@@ -3,12 +3,14 @@ import {StyleSheet, View} from 'react-native';
 import {Button} from 'react-native-paper';
 
 import {screenNames} from '../constants';
-import recordData from '../services/recordDataService';
 
 export default function HomeScreen({route, navigation}) {
   return (
     <View style={styles.container}>
-      <Button icon="camera" mode="contained" onPress={recordData}>
+      <Button
+        icon="camera"
+        mode="contained"
+        onPress={() => navigation.navigate(screenNames.DATA_COLLECTION_SCREEN)}>
         Record Data
       </Button>
       <View style={styles.buttonGap}></View>

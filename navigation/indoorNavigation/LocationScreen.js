@@ -34,7 +34,7 @@ import {describeArc} from '../utils/svgUtils';
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height - 64;
 
-const updateInterval = 2000;
+const updateInterval = 50000;
 const arcAngle = degreesToRadians(80 / 2); // The 'width' of the arc
 const xOffset = 55;
 const yOffset = 0;
@@ -76,39 +76,25 @@ export default function LocationScreen({route, navigation}) {
     setUpdateIntervalForType(SensorTypes.accelerometer, updateInterval);
     setUpdateIntervalForType(SensorTypes.accelerometer, updateInterval);
 
-    const subscriptionAccelero = accelerometer
-      .pipe(
-        map(({x, y, z}) => x + y + z),
-        filter(speed => speed > 20),
-      )
-      .subscribe(
-        speed => console.log(`You moved your phone with ${speed}`),
-        error => {
-          console.log('The sensor is not available');
-        },
-      );
-    const subscriptionMagneto = magnetometer
-      .pipe(
-        map(({x, y, z}) => x + y + z),
-        filter(speed => speed > 20),
-      )
-      .subscribe(
-        speed => console.log(`You moved your phone with ${speed}`),
-        error => {
-          console.log('The sensor is not available');
-        },
-      );
-    const subscriptionGyro = gyroscope
-      .pipe(
-        map(({x, y, z}) => x + y + z),
-        filter(speed => speed > 20),
-      )
-      .subscribe(
-        speed => console.log(`You moved your phone with ${speed}`),
-        error => {
-          console.log('The sensor is not available');
-        },
-      );
+    const subscriptionAccelero = accelerometer.subscribe(({x, y, z}) => {
+      console.log(`You moved your phone with ${x + y + z}`);
+    });
+    // .pipe(
+    //   map(({x, y, z}) => x + y + z),
+    //   filter(speed => speed > 20),
+    // )
+    // .subscribe({
+    //   speed: console.log(`You moved your phone with ${x + y + z}`),
+    //   error: () => {
+    //     console.log('The sensor is not available');
+    //   },
+    // });
+    // const subscriptionMagneto = magnetometer.subscribe(({y}) => {
+    //   console.log('Magneto: ', y, '');
+    // });
+    // const subscriptionGyro = gyroscope.subscribe(({y}) => {
+    //   console.log('Gyro: ', y, '');
+    // });
 
     return () => {
       subscriptionAccelero.unsubscribe();
