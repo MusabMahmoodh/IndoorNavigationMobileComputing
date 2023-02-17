@@ -12,7 +12,7 @@ export default function DataCollector({setDataCollected}) {
       const recordedData = await recordData();
       console.log('Recorded data', recordedData);
       setDataCollected(pre => [...pre, recordedData]);
-    }, 20000);
+    }, 2000);
     return () => {
       clearInterval(recorderRef.current);
     };

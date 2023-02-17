@@ -21,15 +21,15 @@ async function recordData() {
       // Get the current WiFi signal strength
       const wifiList = await WifiReborn?.loadWifiList();
       const signalStrengths = wifiList?.map(wifi => {
-        return {[wifi.BSSID]: wifi.level};
+        return {[`${wifi.BSSID}=${wifi.SSID}`]: wifi.level};
       });
 
       // Get the current location
-      const loc = await determineLocation();
+      // const loc = await determineLocation();
 
       //TODO:Get IMU data
 
-      return {signalStrengths, loc};
+      return {signalStrengths};
     } else {
       // Permission denied
     }
@@ -48,8 +48,8 @@ export async function saveDataToDatabase(gridNo, data) {
       .map(d => {
         return {
           gridNo: gridNo,
-          lat: d?.loc?.latitude,
-          long: d?.loc?.longitude,
+          // lat: d?.loc?.latitude,
+          // long: d?.loc?.longitude,
           wifi: d?.signalStrengths,
         };
       });
@@ -65,20 +65,19 @@ export async function saveDataToDatabase(gridNo, data) {
     };
 
     // construct csvString
-    const headerString = 'grid,lat,long,wifi\n';
+    const headerString = 'grid,wifi\n';
     const rowString = recTifiedData
-      .map(d => `${gridNo},${d?.lat},${d?.long},${wifiStringMaker(d?.wifi)}\n`)
+      .map(d => `${gridNo},${wifiStringMaker(d?.wifi)}\n`)
       .join('');
     const csvString = `${headerString}${rowString}`;
 
     // write the current list of answers to a local csv file
-    const pathToWrite = `${
-      RNFetchBlob.fs.dirs.DownloadDir
-    }/indoornav/${gridNo}_${Date.now()}_data.csv`;
+    const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/indoornav/data.csv`;
     console.log('pathToWrite', pathToWrite);
     // pathToWrite /storage/emulated/0/Download/data.csv
     RNFetchBlob.fs
-      .writeFile(pathToWrite, csvString, 'utf8')
+      .appendFile(pathToWrite, csvString, 'utf8')
+      // .writeFile(pathToWrite, csvString, 'utf8')
       .then(() => {
         console.log(`wrote file ${pathToWrite}`);
         // wrote file /storage/emulated/0/Download/data.csv
@@ -86,12 +85,6 @@ export async function saveDataToDatabase(gridNo, data) {
       .catch(error => console.error(error));
 
     console.log('Data saved to database', recTifiedData);
-
-    // construct csvString
-    // const headerString = 'gridNo,Lat,Long,Wifi\n';
-    // const rowString = data.map(d => `${grid},${d[1]}\n`).join('');
-    // const csvString = `${headerString}${rowString}`;
-    //     console.log('Data saved to database', data);
   } catch (error) {
     console.error(error);
   }

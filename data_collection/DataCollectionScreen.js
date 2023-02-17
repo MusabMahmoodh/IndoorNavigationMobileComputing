@@ -1,4 +1,4 @@
-import {View, Text} from 'react-native';
+import {View, Text, ScrollView} from 'react-native';
 import React from 'react';
 
 import {
@@ -110,7 +110,8 @@ export default function DataCollectionScreen({route, navigation}) {
         {isStarted ? (
           <DataCollector setDataCollected={setDataCollected} />
         ) : null}
-        <DataTable>
+
+        <DataTable style={{height: 500}}>
           <DataTable.Header>
             <DataTable.Title>
               <Text style={{color: '#fff'}}>Point</Text>
@@ -118,34 +119,37 @@ export default function DataCollectionScreen({route, navigation}) {
             <DataTable.Title numeric>
               <Text style={{color: '#fff'}}>WiFi</Text>
             </DataTable.Title>
-            <DataTable.Title numeric>
+            {/* <DataTable.Title numeric>
               <Text style={{color: '#fff'}}>Lat</Text>
             </DataTable.Title>
             <DataTable.Title numeric>
               <Text style={{color: '#fff'}}>Long</Text>
-            </DataTable.Title>
+            </DataTable.Title> */}
           </DataTable.Header>
-          {dataCollected?.reverse().map((reading, idx) => (
-            <DataTable.Row key={idx}>
-              <DataTable.Cell>
-                <Text style={{color: '#fff'}}>{idx}</Text>
-              </DataTable.Cell>
+          <ScrollView>
+            {dataCollected?.reverse().map((reading, idx) => (
+              <DataTable.Row key={idx}>
+                <DataTable.Cell>
+                  <Text style={{color: '#fff'}}>{idx}</Text>
+                </DataTable.Cell>
 
-              <DataTable.Cell numeric>
-                <Text style={{color: '#fff'}}>
-                  {' '}
-                  {JSON.stringify(reading?.signalStrengths)}
-                </Text>
-              </DataTable.Cell>
-              <DataTable.Cell numeric>
+                <DataTable.Cell numeric>
+                  <Text style={{color: '#fff'}}>
+                    {' '}
+                    {JSON.stringify(reading?.signalStrengths)}
+                  </Text>
+                </DataTable.Cell>
+                {/* <DataTable.Cell numeric>
                 <Text style={{color: '#fff'}}>{reading?.loc?.latitude}</Text>
               </DataTable.Cell>
               <DataTable.Cell numeric>
                 <Text style={{color: '#fff'}}>{reading?.loc?.longitude}</Text>
-              </DataTable.Cell>
-            </DataTable.Row>
-          ))}
+              </DataTable.Cell> */}
+              </DataTable.Row>
+            ))}
+          </ScrollView>
         </DataTable>
+
         {/* </ScrollView> */}
 
         {/* {data.map((reading, idx) => (
