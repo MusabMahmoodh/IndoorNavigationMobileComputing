@@ -40,6 +40,8 @@ export function StackNavigator() {
           header: ({scene, previous, navigation}) => (
             <Header scene={scene} previous={previous} navigation={navigation} />
           ),
+          headerStyle: {elevation: 0},
+          cardStyle: {backgroundColor: '#282828'},
         }}>
         <Stack.Screen
           name={screenNames.NAVIGATION_HOME_SCREEN}

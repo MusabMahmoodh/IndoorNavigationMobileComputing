@@ -18,7 +18,7 @@ export default function HomeScreen({route, navigation}) {
         icon="chevron-right"
         mode="contained"
         onPress={() => navigation.navigate(screenNames.NAVIGATION_HOME_SCREEN)}>
-        Go to Navigation
+        Go to Positioning
       </Button>
     </View>
   );

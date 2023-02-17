@@ -1,13 +1,19 @@
 import {View, Text} from 'react-native';
 import React from 'react';
 
-import {ActivityIndicator, Button, DataTable} from 'react-native-paper';
+import {
+  ActivityIndicator,
+  Button,
+  DataTable,
+  TextInput,
+} from 'react-native-paper';
 
 import DataCollector from './components/DataCollector';
 import {saveDataToDatabase} from './recordDataService';
 
 export default function DataCollectionScreen({route, navigation}) {
   const [dataCollected, setDataCollected] = React.useState([]);
+  const [grid, setGrid] = React.useState(null);
   const [isStarted, setIsStarted] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
   const startRecordings = () => {
@@ -21,7 +27,7 @@ export default function DataCollectionScreen({route, navigation}) {
   const saveRecordings = async () => {
     console.log('Saving recording');
     setIsSaving(pre => true);
-    await saveDataToDatabase(dataCollected);
+    await saveDataToDatabase(grid, dataCollected);
     setIsSaving(pre => false);
     setDataCollected(pre => []);
 
@@ -32,6 +38,16 @@ export default function DataCollectionScreen({route, navigation}) {
     <View>
       <View>
         <Text>Navigation</Text>
+      </View>
+      <View>
+        <TextInput
+          mode="outlined"
+          label="Grid number"
+          placeholder="Add grid number"
+          value={grid}
+          onChangeText={text => setGrid(text)}
+          right={<TextInput.Icon icon="eye" />}
+        />
       </View>
       <View
         style={{
@@ -57,7 +73,7 @@ export default function DataCollectionScreen({route, navigation}) {
               <Button icon="camera" mode="contained" onPress={startRecordings}>
                 Start
               </Button>
-              {dataCollected.length > 0 && (
+              {dataCollected.length > 0 && grid !== null && (
                 <Button
                   icon="content-save"
                   mode="outlined"
@@ -96,19 +112,37 @@ export default function DataCollectionScreen({route, navigation}) {
         ) : null}
         <DataTable>
           <DataTable.Header>
-            <DataTable.Title>Point</DataTable.Title>
-            <DataTable.Title numeric>Lat</DataTable.Title>
-            <DataTable.Title numeric>Long</DataTable.Title>
-            <DataTable.Title numeric>WiFi strength</DataTable.Title>
+            <DataTable.Title>
+              <Text style={{color: '#fff'}}>Point</Text>
+            </DataTable.Title>
+            <DataTable.Title numeric>
+              <Text style={{color: '#fff'}}>WiFi</Text>
+            </DataTable.Title>
+            <DataTable.Title numeric>
+              <Text style={{color: '#fff'}}>Lat</Text>
+            </DataTable.Title>
+            <DataTable.Title numeric>
+              <Text style={{color: '#fff'}}>Long</Text>
+            </DataTable.Title>
           </DataTable.Header>
           {dataCollected?.reverse().map((reading, idx) => (
             <DataTable.Row key={idx}>
-              <DataTable.Cell>{idx}</DataTable.Cell>
-              <DataTable.Cell numeric>
-                {JSON.stringify(reading?.signalStrengths)}
+              <DataTable.Cell>
+                <Text style={{color: '#fff'}}>{idx}</Text>
               </DataTable.Cell>
-              <DataTable.Cell numeric>{reading?.loc?.latitude}</DataTable.Cell>
-              <DataTable.Cell numeric>{reading?.loc?.longitude}</DataTable.Cell>
+
+              <DataTable.Cell numeric>
+                <Text style={{color: '#fff'}}>
+                  {' '}
+                  {JSON.stringify(reading?.signalStrengths)}
+                </Text>
+              </DataTable.Cell>
+              <DataTable.Cell numeric>
+                <Text style={{color: '#fff'}}>{reading?.loc?.latitude}</Text>
+              </DataTable.Cell>
+              <DataTable.Cell numeric>
+                <Text style={{color: '#fff'}}>{reading?.loc?.longitude}</Text>
+              </DataTable.Cell>
             </DataTable.Row>
           ))}
         </DataTable>

@@ -1,4 +1,5 @@
 import WifiReborn from 'react-native-wifi-reborn';
+import RNFetchBlob from 'rn-fetch-blob';
 import {PermissionsAndroid} from 'react-native';
 import determineLocation from '../services/locationService';
 
@@ -20,7 +21,7 @@ async function recordData() {
       // Get the current WiFi signal strength
       const wifiList = await WifiReborn?.loadWifiList();
       const signalStrengths = wifiList?.map(wifi => {
-        return {[wifi.SSID]: wifi.level};
+        return {[wifi.BSSID]: wifi.level};
       });
 
       // Get the current location
@@ -40,17 +41,57 @@ async function recordData() {
 export default recordData;
 
 // Function to save data to database
-export async function saveDataToDatabase(data) {
+export async function saveDataToDatabase(gridNo, data) {
   try {
-    // Connect to database
-    // const db = await connectToDatabase();
+    const recTifiedData = data
+      .filter(d => d?.signalStrengths?.length > 0)
+      .map(d => {
+        return {
+          gridNo: gridNo,
+          lat: d?.loc?.latitude,
+          long: d?.loc?.longitude,
+          wifi: d?.signalStrengths,
+        };
+      });
 
-    // // Insert data into database
-    // await db.execute(
-    //   'INSERT INTO wifi_data (strength, location) VALUES (?, ?)',
-    //   [strength, location]
-    // );
-    console.log('Data saved to database', data);
+    const wifiStringMaker = wifi => {
+      let wifiString = '';
+      wifi.forEach(w => {
+        const key = Object.keys(w)[0];
+        const value = w[key];
+        wifiString += `${key}=${value},`;
+      });
+      return wifiString;
+    };
+
+    // construct csvString
+    const headerString = 'grid,lat,long,wifi\n';
+    const rowString = recTifiedData
+      .map(d => `${gridNo},${d?.lat},${d?.long},${wifiStringMaker(d?.wifi)}\n`)
+      .join('');
+    const csvString = `${headerString}${rowString}`;
+
+    // write the current list of answers to a local csv file
+    const pathToWrite = `${
+      RNFetchBlob.fs.dirs.DownloadDir
+    }/indoornav/${gridNo}_${Date.now()}_data.csv`;
+    console.log('pathToWrite', pathToWrite);
+    // pathToWrite /storage/emulated/0/Download/data.csv
+    RNFetchBlob.fs
+      .writeFile(pathToWrite, csvString, 'utf8')
+      .then(() => {
+        console.log(`wrote file ${pathToWrite}`);
+        // wrote file /storage/emulated/0/Download/data.csv
+      })
+      .catch(error => console.error(error));
+
+    console.log('Data saved to database', recTifiedData);
+
+    // construct csvString
+    // const headerString = 'gridNo,Lat,Long,Wifi\n';
+    // const rowString = data.map(d => `${grid},${d[1]}\n`).join('');
+    // const csvString = `${headerString}${rowString}`;
+    //     console.log('Data saved to database', data);
   } catch (error) {
     console.error(error);
   }

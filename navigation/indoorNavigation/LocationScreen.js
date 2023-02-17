@@ -226,6 +226,13 @@ export default function LocationScreen({route, navigation}) {
     }
   }, [currentCheckpointIndex, checkPoints]);
 
+  const board = [];
+  for (let i = 0; i < 11; i++) {
+    for (let j = 0; j < 11; j++) {
+      board.push([i, j]);
+    }
+  }
+
   return (
     <View>
       {
@@ -250,14 +257,38 @@ export default function LocationScreen({route, navigation}) {
         </View>
       }
 
-      <View style={{width: '100%', height: '100%'}}>
+      <View
+        style={{
+          width: '100%',
+          height: '100%',
+          position: 'relative',
+          backgroundColor: 'red',
+        }}>
         <SvgPanZoom
           canvasWidth={500}
           canvasHeight={500}
           minScale={0.75}
           maxScale={2}
+          canvasStyle={{backgroundColor: 'yellow'}}
+          viewStyle={{backgroundColor: 'green'}}
           initialZoom={1}>
           {/* Map */}
+          <View
+            width={'100%'}
+            height={'100%'}
+            backgroundColor={'white'}
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: '100%',
+              height: '100%',
+              zIndex: 9999,
+            }}>
+            <Text style={{color: 'white'}}>Map</Text>
+          </View>
           <Image
             href={floorplan}
             width={'100%'}
@@ -265,6 +296,20 @@ export default function LocationScreen({route, navigation}) {
             opacity={0.99}
           />
           {navVisualization}
+
+          {board.map((item, index) => {
+            return (
+              <Circle
+                key={index}
+                cx={item[0] * 50}
+                cy={item[1] * 50}
+                r={4}
+                strokeWidth={1}
+                fill={'black'}
+                opacity={0.25}
+              />
+            );
+          })}
 
           <Circle
             cx={location.x}
