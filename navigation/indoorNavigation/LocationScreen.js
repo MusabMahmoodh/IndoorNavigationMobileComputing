@@ -30,6 +30,7 @@ import {
   createPathFinder,
 } from '../utils/ngraphUtils';
 import {describeArc} from '../utils/svgUtils';
+import {getLocationPrediction} from '../../ml/test';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height - 64;
@@ -75,6 +76,19 @@ export default function LocationScreen({route, navigation}) {
     setUpdateIntervalForType(SensorTypes.accelerometer, updateInterval);
     setUpdateIntervalForType(SensorTypes.accelerometer, updateInterval);
     setUpdateIntervalForType(SensorTypes.accelerometer, updateInterval);
+    const getPredictedGrid = async () => {
+      const gidId = await getLocationPrediction();
+      const nodeData = graphJsonInput?.nodes?.find(node => {
+        return node.id === gidId;
+      })?.data;
+      setLocation({x: (nodeData.x + 1) * 50, y: (nodeData.y + 1) * 50});
+      console.log('Before');
+
+      console.log('Grid Id', nodeData);
+      console.log('After');
+    };
+
+    getPredictedGrid();
 
     const subscriptionAccelero = accelerometer.subscribe(({x, y, z}) => {
       console.log(`You moved your phone with ${x + y + z}`);
@@ -157,7 +171,6 @@ export default function LocationScreen({route, navigation}) {
         // console.log(graphJson, nodeId);
 
         return graphJson?.nodes?.find(node => {
-          console.log(node.id, nodeId);
           return node.id === nodeId;
         })?.data;
       }
@@ -231,13 +244,6 @@ export default function LocationScreen({route, navigation}) {
       );
     }
   }, [currentCheckpointIndex, checkPoints]);
-
-  const board = [];
-  for (let i = 0; i < 11; i++) {
-    for (let j = 0; j < 11; j++) {
-      board.push([i, j]);
-    }
-  }
 
   return (
     <View>
@@ -327,8 +333,8 @@ export default function LocationScreen({route, navigation}) {
             opacity={0.25}
           />
           <Circle
-            cx={1}
-            cy={2}
+            cx={location.x}
+            cy={location.y}
             r={4 * indicatorScale}
             stroke={theme.colors.accent}
             strokeWidth={indicatorScale}

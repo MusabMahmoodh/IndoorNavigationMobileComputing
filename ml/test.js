@@ -1,51 +1,33 @@
 const KNN = require('ml-knn');
-const tf = require('@tensorflow/tfjs');
+const {test_labels, test_data} = require('./data');
+
 // import {weight_height} from'./data.js';
 
-const csvUrl = 'file://./data.csv';
+async function getLocationPrediction() {
+  try {
+    console.log(test_data.slice(0, 2));
+    console.log(test_labels.slice(0, 2));
+    const size = test_data.length;
 
-const csvDataset = tf.data.csv(csvUrl, {
-  columnConfigs: {
-    grid: {
-      isLabel: true,
-    },
-  },
-});
+    const train_data_set = test_data.slice(3, size);
+    const train_data_labels = test_labels.slice(3, size);
 
-async function getData() {
-  var labels = [];
-  var data_set = [];
-  const dataset = await csvDataset.toArray();
+    const test_data_set = test_data.slice(0, 3);
+    const test_data_labels = test_labels.slice(0, 3);
 
-  dataset.forEach(data => {
-    labels.push(data.ys.grid);
-    data_set.push(Object.values(data.xs));
-  });
+    var knn = new KNN(train_data_set, train_data_labels, {k: 3}); // consider 2 nearest neighbors
 
-  return {labels, data_set};
+    var ans = knn.predict(train_data_set[134]);
+    console.log('ans =', ans);
+    return ans;
+  } catch (e) {
+    console.log('Error', e);
+  }
 }
 
-getData();
+getLocationPrediction();
+module.exports = {getLocationPrediction};
 
-async function testTrain() {
-  const data = await getData();
-
-  const size = data.data_set.length;
-
-  const train_data_set = data.data_set.slice(3, size);
-  const train_data_labels = data.labels.slice(3, size);
-
-  const test_data_set = data.data_set.slice(0, 3);
-  const test_data_labels = data.labels.slice(0, 3);
-
-  var knn = new KNN(train_data_set, train_data_labels, {k: 3}); // consider 2 nearest neighbors
-
-  var ans = knn.predict(data.data_set[191]);
-
-  console.log(ans);
-}
-
-testTrain();
 // classification result:
 // ans = [ 0, 0, 1, 1 ]
 // Based on the training data, the first two points of the test dataset are classified as "0" (type 0, perhaps),
