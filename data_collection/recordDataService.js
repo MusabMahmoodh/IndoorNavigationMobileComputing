@@ -20,6 +20,7 @@ async function recordData() {
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
       // Get the current WiFi signal strength
       const wifiList = await WifiReborn?.loadWifiList();
+
       const signalStrengths = wifiList?.map(wifi => {
         return {[`${wifi.BSSID}=${wifi.SSID}`]: wifi.level};
       });

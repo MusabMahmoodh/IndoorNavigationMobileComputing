@@ -154,11 +154,17 @@ export default function LocationScreen({route, navigation}) {
       }
 
       function findNodeData(nodeId) {
-        return graphJson.nodes.find(node => node.id === nodeId).data;
+        // console.log(graphJson, nodeId);
+
+        return graphJson?.nodes?.find(node => {
+          console.log(node.id, nodeId);
+          return node.id === nodeId;
+        })?.data;
       }
 
       return graphJson.links.map((link, index) => {
         const fromNodeData = findNodeData(link.fromId);
+
         const toNodeData = findNodeData(link.toId);
         return createNavVisualizationLine(
           index,
@@ -266,7 +272,7 @@ export default function LocationScreen({route, navigation}) {
         }}>
         <SvgPanZoom
           canvasWidth={500}
-          canvasHeight={500}
+          canvasHeight={1000}
           minScale={0.75}
           maxScale={2}
           canvasStyle={{backgroundColor: 'yellow'}}
@@ -297,19 +303,20 @@ export default function LocationScreen({route, navigation}) {
           />
           {navVisualization}
 
-          {board.map((item, index) => {
-            return (
-              <Circle
-                key={index}
-                cx={item[0] * 50}
-                cy={item[1] * 50}
-                r={4}
-                strokeWidth={1}
-                fill={'black'}
-                opacity={0.25}
-              />
-            );
-          })}
+          {graphJsonInput &&
+            graphJsonInput.nodes.map((item, index) => {
+              return (
+                <Circle
+                  key={index}
+                  cx={(item.data.x + 1) * 50}
+                  cy={(item.data.y + 1) * 50}
+                  r={4}
+                  strokeWidth={1}
+                  fill={'black'}
+                  opacity={0.25}
+                />
+              );
+            })}
 
           <Circle
             cx={location.x}
@@ -320,8 +327,8 @@ export default function LocationScreen({route, navigation}) {
             opacity={0.25}
           />
           <Circle
-            cx={location.x}
-            cy={location.y}
+            cx={1}
+            cy={2}
             r={4 * indicatorScale}
             stroke={theme.colors.accent}
             strokeWidth={indicatorScale}
