@@ -1,12 +1,12 @@
-import * as tf from "@tensorflow/tfjs";
+import * as tf from '@tensorflow/tfjs';
 
 async function createFingerprintMap() {
   // Load collected data from database
   const data = await loadDataFromDatabase();
 
   // Split data into features (WiFi signal strength) and labels (location)
-  const features = data.map((item) => item.strength);
-  const labels = data.map((item) => item.location);
+  const features = data.map(item => item.strength);
+  const labels = data.map(item => item.location);
 
   // Convert features and labels to tensors
   const xs = tf.tensor2d(features, [features.length, 1]);
@@ -19,7 +19,7 @@ async function createFingerprintMap() {
   await classifier.train();
 
   // Save classifier to file or database
-  await classifier.save("file://fingerprint-map");
+  await classifier.save('file://fingerprint-map');
 }
 
 // Function to load data from database
@@ -29,7 +29,7 @@ async function loadDataFromDatabase() {
     const db = await connectToDatabase();
 
     // Query data from database
-    const results = await db.executeSql("SELECT * FROM wifi_data");
+    const results = await db.executeSql('SELECT * FROM wifi_data');
 
     // Extract data from results
     const data = [];
