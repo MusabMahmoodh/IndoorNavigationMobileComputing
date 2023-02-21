@@ -56,7 +56,7 @@ export default function LocationSelectScreen({navigation}) {
       <View style={s.spacerLg} />
 
       <Button
-        disabled={areEmpty(dropDownEndValue, dropDownEndValue)}
+        disabled={!(dropDownEndValue && dropDownStartValue)}
         icon="map-marker-radius"
         mode="contained"
         onPress={startNavigation}>

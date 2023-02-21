@@ -21,7 +21,6 @@ import {
   useStepLength,
 } from '../react-native-smartpdr/utils/customHooks';
 import {range} from '../react-native-smartpdr/utils/sensors_utils';
-import {Navigation} from '../stack';
 import {graphJsonString} from '../utils/constants';
 import {degreesToRadians, radiansToDegrees} from '../utils/mathUtils';
 import {
@@ -35,11 +34,11 @@ import {getLocationPrediction} from '../../ml/test';
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height - 64;
 
-const updateInterval = 50000;
+const updateInterval = 5000;
 const arcAngle = degreesToRadians(80 / 2); // The 'width' of the arc
-const xOffset = 55;
-const yOffset = 0;
-const locationScale = 0.3;
+const xOffset = 50;
+const yOffset = 50;
+const locationScale = 50;
 const indicatorScale = 1.5;
 const stepScale = 2;
 
@@ -70,58 +69,32 @@ export default function LocationScreen({route, navigation}) {
   );
 
   const [checkPoints, setCheckPoints] = useState();
-  const [currentCheckpointIndex, setCurrentCheckpointIndex] = useState(0);
+  const [currentCheckpointIndex, setCurrentCheckpointIndex] = useState(1);
 
   useEffect(() => {
-    setUpdateIntervalForType(SensorTypes.accelerometer, updateInterval);
-    setUpdateIntervalForType(SensorTypes.accelerometer, updateInterval);
-    setUpdateIntervalForType(SensorTypes.accelerometer, updateInterval);
     const getPredictedGrid = async () => {
       const gidId = await getLocationPrediction();
-      const nodeData = graphJsonInput?.nodes?.find(node => {
-        return node.id === gidId;
-      })?.data;
-      setLocation({x: (nodeData.x + 1) * 50, y: (nodeData.y + 1) * 50});
-      console.log('Before');
-
-      console.log('Grid Id', nodeData);
-      console.log('After');
+      try {
+        const nodeData = graphJsonInput?.nodes?.find(node => {
+          return node.id === gidId;
+        })?.data;
+        setLocation({
+          x: (nodeData.x + Math.floor(Math.random() * 8) + 1) * 50,
+          y: (nodeData.y + Math.floor(Math.random() * 16) + 1) * 50,
+        });
+      } catch (e) {
+        console.log(e);
+      }
     };
 
     getPredictedGrid();
 
-    const subscriptionAccelero = accelerometer.subscribe(({x, y, z}) => {
-      console.log(`You moved your phone with ${x + y + z}`);
-    });
-    // .pipe(
-    //   map(({x, y, z}) => x + y + z),
-    //   filter(speed => speed > 20),
-    // )
-    // .subscribe({
-    //   speed: console.log(`You moved your phone with ${x + y + z}`),
-    //   error: () => {
-    //     console.log('The sensor is not available');
-    //   },
-    // });
-    // const subscriptionMagneto = magnetometer.subscribe(({y}) => {
-    //   console.log('Magneto: ', y, '');
-    // });
-    // const subscriptionGyro = gyroscope.subscribe(({y}) => {
-    //   console.log('Gyro: ', y, '');
-    // });
+    // interval = setInterval(() => {
+    //   getPredictedGrid();
+    // }, 1000);
 
-    return () => {
-      subscriptionAccelero.unsubscribe();
-      subscriptionMagneto.unsubscribe();
-      subscriptionGyro.unsubscribe();
-    };
-  }, [navigation]);
-
-  useEffect(() => {
-    const nx = stepLength ? stepLength * Math.sin(headingStep) * 10 : 0;
-    const ny = stepLength ? stepLength * Math.cos(headingStep) * 10 : 0;
-    setLocation(previous => ({x: previous.x + nx, y: previous.y - ny}));
-  }, [stepLength]);
+    // return () => clearInterval(interval);
+  }, []);
 
   function setLocationWithNode(node) {
     const startX = node.data.x * locationScale + xOffset;
@@ -130,12 +103,18 @@ export default function LocationScreen({route, navigation}) {
   }
 
   const graphJsonInput = useMemo(() => {
+    setLocation({x: windowWidth / 2, y: windowHeight / 2});
+    return JSON.parse(graphJsonString);
+  }, [route]);
+  const graphJsonPathInput = useMemo(() => {
     const fullGraph = fromJSON(graphJsonString);
+
     const pathfinder = createPathFinder(fullGraph);
 
     if (route?.params?.startId && route?.params?.endId) {
-      const startNode = fullGraph.getNode(route.params.startId);
-      setLocationWithNode(startNode);
+      const startNode = JSON.parse(graphJsonString)?.nodes?.find(node => {
+        return node.id === route?.params?.startId;
+      });
 
       const path = pathfinder.find(route.params.startId, route.params.endId);
       setCheckPoints(createNavigableNodes(path.reverse()));
@@ -143,14 +122,20 @@ export default function LocationScreen({route, navigation}) {
       const pathJsonStringGraph = toJSON(pathGraph);
       return JSON.parse(pathJsonStringGraph);
     } else {
-      setLocation({x: windowWidth / 2, y: windowHeight / 2});
-      return JSON.parse(graphJsonString);
+      return {nodes: [], links: []};
     }
   }, [route]);
 
   const navVisualization = useMemo(() => {
     function createNavVisualization(graphJson) {
       function createNavVisualizationLine(key, startX, startY, endX, endY) {
+        console.log(
+          `M ${startX * locationScale + xOffset},${
+            startY * locationScale + yOffset
+          } ${endX * locationScale + xOffset},${
+            endY * locationScale + yOffset
+          }`,
+        );
         return (
           <Path
             key={key}
@@ -189,8 +174,8 @@ export default function LocationScreen({route, navigation}) {
       });
     }
 
-    return createNavVisualization(graphJsonInput);
-  }, [graphJsonInput]);
+    return createNavVisualization(graphJsonPathInput);
+  }, [graphJsonPathInput]);
 
   const arcPath = useMemo(() => {
     return describeArc(
@@ -222,9 +207,9 @@ export default function LocationScreen({route, navigation}) {
           const nextCheckpoint = checkPoints[currentCheckpointIndex + 1];
           return (
             <Text style={{alignContent: 'center'}}>
-              <Text style={s.checkPointText}>{currentCheckpoint.id} </Text>
+              <Text style={s.checkPointText}>{currentCheckpoint?.id} </Text>
               <AntDesign name="arrowright" size={20} color="black" />
-              <Text style={s.checkPointText}> {nextCheckpoint.id}</Text>
+              <Text style={s.checkPointText}> {nextCheckpoint?.id}</Text>
             </Text>
           );
         }
@@ -247,7 +232,7 @@ export default function LocationScreen({route, navigation}) {
 
   return (
     <View>
-      {
+      {/* {
         <View
           style={{
             position: 'absolute',
@@ -267,7 +252,7 @@ export default function LocationScreen({route, navigation}) {
           </Text>
           <Text>HeadingStep| {radiansToDegrees(headingStep ?? 0)}</Text>
         </View>
-      }
+      } */}
 
       <View
         style={{
@@ -279,7 +264,7 @@ export default function LocationScreen({route, navigation}) {
         <SvgPanZoom
           canvasWidth={500}
           canvasHeight={1000}
-          minScale={0.75}
+          minScale={0.5}
           maxScale={2}
           canvasStyle={{backgroundColor: 'yellow'}}
           viewStyle={{backgroundColor: 'green'}}
@@ -309,8 +294,8 @@ export default function LocationScreen({route, navigation}) {
           />
           {navVisualization}
 
-          {graphJsonInput &&
-            graphJsonInput.nodes.map((item, index) => {
+          {graphJsonPathInput &&
+            graphJsonPathInput.nodes.map((item, index) => {
               return (
                 <Circle
                   key={index}

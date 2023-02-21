@@ -40,10 +40,10 @@ export function createGraphFromPathNodes(nodes) {
  */
 export function createNavigableOptions(jsonGraph) {
   return jsonGraph.nodes
-    .filter(node => !Number.isInteger(node.id))
+    .filter(node => node.name !== undefined)
     .map(node => {
       return {
-        label: capitalizeFirstLetter(node.id.replace(/_/g, ' ')),
+        label: capitalizeFirstLetter(node.name.replace(/_/g, ' ')),
         value: node.id,
       };
     });
