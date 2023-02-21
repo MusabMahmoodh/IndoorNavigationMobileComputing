@@ -83,14 +83,14 @@ export default function LocationScreen({route, navigation}) {
         wifiData += wifi.BSSID;
         wifiData += '=';
         wifiData += wifi.SSID;
-        wifiData += ':';
+        wifiData += '=';
         wifiData += wifi.level;
         wifiStringName.push(wifiData);
       });
 
       const currentWifiStrengths = getWifiStrengths(wifiStringName);
       const gidId = await getLocationPrediction(currentWifiStrengths);
-
+      wifiStringName = [];
       try {
         const nodeData = graphJsonInput?.nodes?.find(node => {
           return node.id === gidId;
@@ -108,7 +108,7 @@ export default function LocationScreen({route, navigation}) {
 
     const interval = setInterval(() => {
       getPredictedGrid();
-    }, 1000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, []);
@@ -369,7 +369,7 @@ const s = StyleSheet.create({
     paddingVertical: 7,
     zIndex: 1,
     bottom: 0,
-    backgroundColor: 'white',
+    backgroundColor: 'black',
   },
   checkPointText: {
     fontWeight: 'bold',

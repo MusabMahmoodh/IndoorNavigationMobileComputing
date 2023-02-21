@@ -3,27 +3,36 @@ const {test_labels, test_data} = require('./data');
 
 // import {weight_height} from'./data.js';
 
-const noOfCols = 20;
+const noOfCols = 40;
+const colStart = 3;
+
+const indexes = [
+  2, 4, 10, 11, 12, 13, 14, 15, 23, 24, 26, 28, 30, 37, 38, 45, 46,
+];
 
 async function getLocationPrediction(currentWifiStrengths) {
   try {
-    const size = test_data.length;
+    const sizel = test_data.length;
 
-    const train_data_set = test_data
-      // .slice(3, size)
-      .map(item => item.slice(0, noOfCols));
-    const train_data_labels = test_labels;
-    // .map(item => item.slice(0, noOfCols));
+    const train_data_set = indexes.map(index => test_data[index]);
+    console.log(
+      'train_data_set =',
+      indexes.map(index => currentWifiStrengths[index]),
+    );
+    // .slice(3, size)
+    // .map(item => item.slice(colStart, noOfCols));
+    const train_data_labels = indexes.map(index => test_labels[index]);
+    // .map(item => item.slice(colStart, noOfCols));
 
-    const test_data_set = test_data
-      .slice(0, 3)
-      .map(item => item.slice(0, noOfCols));
+    // const test_data_set = test_data
+    //   .slice(colStart, 3)
+    //   .map(item => item.slice(colStart, noOfCols));
 
-    const test_data_labels = test_labels.slice(0, 3);
+    // const test_data_labels = test_labels.slice(colStart, 3);
 
     var knn = new KNN(train_data_set, train_data_labels, {k: 5}); // consider 2 nearest neighbors
 
-    var ans = knn.predict(currentWifiStrengths.slice(0, noOfCols));
+    var ans = knn.predict(indexes.map(index => currentWifiStrengths[index]));
     console.log('ans =', ans);
     return ans;
   } catch (e) {

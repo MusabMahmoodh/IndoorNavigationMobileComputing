@@ -96,6 +96,7 @@ const dataset = [
 ];
 
 export function getWifiStrengths(inputData) {
+  console.log(inputData.length);
   const orderedList = [];
   const signalStrength = [];
   for (let i = 0; i < dataset.length; i++) {
