@@ -6,6 +6,7 @@ import {
   setUpdateIntervalForType,
   SensorTypes,
 } from 'react-native-sensors';
+import WifiReborn from 'react-native-wifi-reborn';
 import {map, filter} from 'rxjs/operators';
 import fromJSON from 'ngraph.fromjson';
 import toJSON from 'ngraph.tojson';
@@ -30,6 +31,7 @@ import {
 } from '../utils/ngraphUtils';
 import {describeArc} from '../utils/svgUtils';
 import {getLocationPrediction} from '../../ml/test';
+import {getWifiStrengths} from '../../services/wifiRefinedInputUtil';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height - 64;
@@ -73,14 +75,29 @@ export default function LocationScreen({route, navigation}) {
 
   useEffect(() => {
     const getPredictedGrid = async () => {
-      const gidId = await getLocationPrediction();
+      let wifiStringName = [];
+      const wifiList = await WifiReborn?.loadWifiList();
+
+      wifiList?.map(wifi => {
+        let wifiData = '';
+        wifiData += wifi.BSSID;
+        wifiData += '=';
+        wifiData += wifi.SSID;
+        wifiData += ':';
+        wifiData += wifi.level;
+        wifiStringName.push(wifiData);
+      });
+
+      const currentWifiStrengths = getWifiStrengths(wifiStringName);
+      const gidId = await getLocationPrediction(currentWifiStrengths);
+
       try {
         const nodeData = graphJsonInput?.nodes?.find(node => {
           return node.id === gidId;
         })?.data;
         setLocation({
-          x: (nodeData.x + Math.floor(Math.random() * 8) + 1) * 50,
-          y: (nodeData.y + Math.floor(Math.random() * 16) + 1) * 50,
+          x: (nodeData.x + 1) * 50,
+          y: (nodeData.y + 1) * 50,
         });
       } catch (e) {
         console.log(e);
@@ -89,11 +106,11 @@ export default function LocationScreen({route, navigation}) {
 
     getPredictedGrid();
 
-    // interval = setInterval(() => {
-    //   getPredictedGrid();
-    // }, 1000);
+    const interval = setInterval(() => {
+      getPredictedGrid();
+    }, 1000);
 
-    // return () => clearInterval(interval);
+    return () => clearInterval(interval);
   }, []);
 
   function setLocationWithNode(node) {
@@ -129,18 +146,11 @@ export default function LocationScreen({route, navigation}) {
   const navVisualization = useMemo(() => {
     function createNavVisualization(graphJson) {
       function createNavVisualizationLine(key, startX, startY, endX, endY) {
-        console.log(
-          `M ${startX * locationScale + xOffset},${
-            startY * locationScale + yOffset
-          } ${endX * locationScale + xOffset},${
-            endY * locationScale + yOffset
-          }`,
-        );
         return (
           <Path
             key={key}
-            stroke={theme.colors.placeholder}
-            strokeWidth={4}
+            stroke={theme.colors.primary}
+            strokeWidth={5}
             strokeLinecap={'round'}
             opacity={0.9}
             d={`M ${startX * locationScale + xOffset},${
